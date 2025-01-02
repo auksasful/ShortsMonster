@@ -5,10 +5,108 @@ from modules.image_generator import ImageGenerator
 from modules.footage_downloader import FootageDownloader
 from modules.voice_generator import VoiceGenerator
 from modules.video_generator import VideoGenerator
+from config import Config
+
+prompts = [
+    'Create a 30-second Tiktok video script about [5 easy healthy snacks for weight loss].\n'
+    'Required format: Python list of dictionaries. Split the script into scenes, then pack each scene into a dictionary. '
+    'Output the list of these dictionaries.',
+
+    'Create a 30-second Tiktok video script about [Top 3 fat-burning cardio exercises].\n'
+    'Required format: Python list of dictionaries. Split the script into scenes, then pack each scene into a dictionary. '
+    'Output the list of these dictionaries.',
+
+    'Create a 30-second Tiktok video script about [Drinking water before meals for weight loss].\n'
+    'Required format: Python list of dictionaries. Split the script into scenes, then pack each scene into a dictionary. '
+    'Output the list of these dictionaries.'
+]
 
 def run_script_writer(project_folder):
-    writer = ScriptWriter(project_folder)
-    writer.execute()
+    ai_text_models = [
+        # "default-deepseek-chat",
+        # "default-learnlm-1.5-pro-experimental",
+        # "default-gemini-2.0-flash-thinking-exp",
+        # "default-gemini-2.0-flash-thinking-exp-1219",
+        # "default-gemini-2.0-flash-exp",
+        # "default-gemini-exp",
+        # "default-gemini-exp-1206",
+        # "default-gemini-exp-1121",
+        # "default-gemini-exp-1114",
+        # "default-gemini-1.5-pro-exp",
+        # "default-gemini-1.5-pro-exp-0801",
+        # "default-gemini-1.5-pro",
+        # "default-gemini-1.5-pro-002",
+        "default-gemini-1.5-flash",
+        "default-gemini-1.5-flash-002",
+        # "default-grok-2",
+        # "default-grok-2-1212",
+        # "default-grok-2-vision",
+        # "default-grok-2-vision-1212",
+        # "default-grok-vision-beta",
+        # "default-grok-beta",
+        # "default-chatgpt-4o-latest",
+        # "default-o1",
+        # "default-o1-2024-12-17",
+        # "default-o1-preview",
+        # "default-o1-preview-2024-09-12",
+        # "default-o1-mini",
+        # "default-o1-mini-2024-09-12",
+        # "default-gpt-4o",
+        # "default-gpt-4o-2024-11-20",
+        # "default-gpt-4o-2024-08-06",
+        # "default-gpt-4o-2024-05-13",
+        # "default-gpt-4o-mini",
+        # "default-gpt-4o-mini-2024-07-18",
+        # "default-gpt-4-turbo",
+        # "default-gpt-4-turbo-2024-04-09",
+        # "default-gpt-4-turbo-preview",
+        # "default-gpt-4-0125-preview",
+        # "default-gpt-4-1106-preview",
+        # "default-gpt-4",
+        # "default-gpt-4-0613",
+        "default-llama-3.3-70b-instruct",
+        "default-llama-3.2-90b-vision-instruct",
+        "default-llama-3.2-11b-vision-instruct",
+        "default-llama-3.2-3b-instruct",
+        "default-llama-3.2-1b-instruct",
+        "default-llama-3.1-405b-instruct",
+        "default-llama-3.1-70b-instruct",
+        "default-llama-3.1-8b-instruct",
+        "default-llama-3-70b-instruct",
+        "default-llama-3-8b-instruct",
+        # "default-mixtral-8x22b-instruct",
+        # "default-command-r-plus",
+        # "default-command-r",
+        # "default-mistral-large",
+        # "default-mistral-large-2411",
+        # "default-codestral",
+        # "default-codestral-2405",
+        "default-gpt-3.5-turbo",
+        "default-gpt-3.5-turbo-0125",
+        "default-gpt-3.5-turbo-1106",
+        # "default-claude-3.5-sonnet",
+        # "default-claude-3.5-sonnet-20241022",
+        # "default-claude-3.5-haiku",
+        # "default-claude-3.5-haiku-20241022",
+        # "default-claude-3-opus",
+        # "default-claude-3-opus-20240229",
+        # "default-claude-3-sonnet",
+        # "default-claude-3-sonnet-20240229",
+        # "default-claude-3-haiku",
+        # "default-claude-3-haiku-20240307",
+        # "default-claude-2.1",
+        # "default-claude-instant",
+        # "default-gemini-pro",
+        "default-llama-2-70b-chat",
+        "default-llama-2-13b-chat",
+        "default-llama-2-7b-chat",
+        "default-mistral-7b-instruct",
+        "default-mixtral-8x7b-instruct"
+    ]
+    writer = ScriptWriter(project_folder, Config.NAGA_AC_API_KEY, text_model_whitelist=ai_text_models)
+
+    for prompt in prompts:
+        writer.execute(prompt)
 
 def run_script_divider(project_folder):
     divider = ScriptDivider(project_folder)

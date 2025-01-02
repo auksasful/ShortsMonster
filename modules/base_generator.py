@@ -1,3 +1,4 @@
+import csv
 import os
 
 
@@ -17,6 +18,8 @@ class BaseGenerator:
         # Logic for reading a CSV file
         pass
 
-    def write_csv(self, file_name, data):
-        # Logic for writing data to a CSV file
-        pass
+    def write_csv(self, file_path, response):
+        with open(file_path, mode='a', newline='', encoding='utf-8') as file:
+            writer = csv.writer(file)
+            writer.writerow([response])
+    

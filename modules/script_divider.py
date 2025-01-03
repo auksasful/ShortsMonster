@@ -7,4 +7,7 @@ class ScriptDivider(BaseGenerator):
         super().__init__(project_folder)
 
     def execute(self):
-        pass
+        data = self.read_csv(self.script_file_path)
+
+        # print(data)
+        print(data[0][0]['Scene'])

@@ -9,16 +9,19 @@ from config import Config
 
 prompts = [
     'Create a 30-second Tiktok video script about [5 easy healthy snacks for weight loss].\n'
-    'Required format: Python list of dictionaries. Split the script into scenes, then pack each scene into a dictionary. '
-    'Output the list of these dictionaries.',
+    'Required format: csv file delimited by |^| with 5 columns: Scene, Duration, Text, Visuals, Hashtags, Description.\n'
+    'Output the list of these columns.'
+    'The duration should be integer.',
 
     'Create a 30-second Tiktok video script about [Top 3 fat-burning cardio exercises].\n'
-    'Required format: Python list of dictionaries. Split the script into scenes, then pack each scene into a dictionary. '
-    'Output the list of these dictionaries.',
+    'Required format: csv file delimited by |^| with 5 columns: Scene, Duration, Text, Visuals, Hashtags, Description.\n'
+    'Output the list of these columns.'
+    'The duration should be integer.',
 
     'Create a 30-second Tiktok video script about [Drinking water before meals for weight loss].\n'
-    'Required format: Python list of dictionaries. Split the script into scenes, then pack each scene into a dictionary. '
-    'Output the list of these dictionaries.'
+    'Required format: csv file delimited by |^| with 5 columns: Scene, Duration, Text, Visuals, Hashtags, Description.\n'
+    'Output the list of these columns.'
+    'The duration should be integer.',
 ]
 
 def run_script_writer(project_folder):

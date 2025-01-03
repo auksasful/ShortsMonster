@@ -56,7 +56,7 @@ class ScriptWriter(BaseGenerator):
         response = self.generate_text_nagaac(prompt)
 
 
-        file_path = os.path.join(self.project_folder, 'script.csv')
+        file_path = self.script_file_path
 
         self.write_csv(file_path, response)
 

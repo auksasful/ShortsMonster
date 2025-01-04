@@ -113,7 +113,11 @@ def run_script_writer(project_folder):
 
 def run_script_divider(project_folder):
     divider = ScriptDivider(project_folder)
-    divider.execute()
+    rows = divider.read_script_data()
+    for row in rows:
+        for row_inner in row:
+            divider.execute(line=row_inner)
+    divider.write_json_data()
 
 def run_prompts_writer(project_folder):
     prompts = PromptsWriter(project_folder)

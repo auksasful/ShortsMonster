@@ -1,5 +1,7 @@
 .env
+*.json
 *.db
+*.csv
 __pycache__/
 projects/
 modules/__pycache__/

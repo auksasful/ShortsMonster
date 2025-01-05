@@ -2,7 +2,7 @@
 
 This project is based on the Python Money course on Telegram. The code and concepts used in this project are derived from the lessons provided in the course.
 
-For more information and to join the course, please visit the [Python Money course on Telegram](t.me/AiPythonMoney).
+For more information and to join the course, please visit the [Python Money course on Telegram](http://t.me/AiPythonMoney).
 
 ## Getting Started
 

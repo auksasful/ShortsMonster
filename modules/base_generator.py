@@ -7,6 +7,7 @@ class BaseGenerator:
 
     SCRIPT_FILE_NAME = 'script.csv'
     SCRIPT_VIDEOS_FILE_NAME = 'script_videos.json'
+    IMAGE_PROMPTS_FILE_NAME = 'image_prompts.json'
 
     def __init__(self, project_folder):
         # Forming paths to the project directories
@@ -16,6 +17,7 @@ class BaseGenerator:
         self.generated_video = os.path.join(self.project_folder, 'generated_video')
         self.script_file_path = os.path.join(self.project_folder, self.SCRIPT_FILE_NAME)
         self.script_videos_file_path = os.path.join(self.project_folder, self.SCRIPT_VIDEOS_FILE_NAME)
+        self.image_prompts_file_path = os.path.join(self.project_folder, self.IMAGE_PROMPTS_FILE_NAME)
 
         # Automatically create project folder and its subdirectories if they do not exist
         os.makedirs(self.generated_images, exist_ok=True)
@@ -31,9 +33,7 @@ class BaseGenerator:
                     row_array.append(row[0].split('\n'))
             if file_path == self.script_file_path:
                 return row_array
-                    
-
-
+                
     def write_csv(self, file_path, response):
         with open(file_path, mode='a', newline='', encoding='utf-8') as file:
             writer = csv.writer(file)
@@ -42,4 +42,8 @@ class BaseGenerator:
     def write_json(self, file_path, response):
         with open(file_path, 'w', encoding='utf-8') as file:
             json.dump(response, file, indent=4)
+
+    def read_json(self, file_path):
+        with open(file_path, 'r', encoding='utf-8') as file:
+            return json.load(file)
     

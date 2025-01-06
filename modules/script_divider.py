@@ -46,14 +46,12 @@ class ScriptDivider(BaseGenerator):
         else:
             self.header_met = False
 
-    @staticmethod
-    def initialize_videos(json_file_path, append):
+    def initialize_videos(self, json_file_path, append):
         videos = defaultdict(lambda: {"scenes": []}) 
         if not append:
             return videos 
         # Load the initial videos data from a JSON file 
-        with open(json_file_path, 'r', encoding='utf-8') as json_file: 
-            initial_videos = json.load(json_file) 
+        initial_videos = self.read_json(json_file_path)
         # Convert the list to a defaultdict 
         for video in initial_videos: 
             video_id = video["video"] 

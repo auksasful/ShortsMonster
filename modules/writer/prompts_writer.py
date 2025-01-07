@@ -33,9 +33,6 @@ class PromptsWriter(BaseGenerator):
             self.videos[video_id]["scenes"] = []
         self.videos[video_id]["scenes"].append(scene_data)
 
-
-        self.write_json(file_path, self.videos)
-
     def initialize_videos(self):
         videos = defaultdict(lambda: {"scenes": []}) 
         return videos 

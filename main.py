@@ -133,7 +133,12 @@ def run_prompts_writer(project_folder, prompt_for_images):
 
 def run_image_generator(project_folder):
     generator = ImageGenerator(project_folder)
-    generator.execute()
+    json_data = generator.read_image_prompts_json()
+    for video in json_data:
+        for scene in video['scenes']:
+            generator.execute(video_id=video['video'], scene=scene['scene'], prompt=scene['image_prompt'])
+            
+    generator.write_json_data()
 
 def run_footage_downloader(project_folder):
     downloader = FootageDownloader(project_folder)

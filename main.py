@@ -145,8 +145,11 @@ def run_footage_downloader(project_folder):
     downloader.execute()
 
 def run_voice_generator(project_folder):
-    voice = VoiceGenerator(project_folder)
-    voice.execute()
+    voice = VoiceGenerator(project_folder, Config.NAGA_AC_API_KEY)
+    json_data = voice.read_json_data()
+    for video in json_data:
+        for scene in video['scenes']:
+            voice.execute(video_id=video['video'], scene=scene['scene'], prompt=scene['text'])
 
 def run_video_generator(project_folder):
     video = VideoGenerator(project_folder)

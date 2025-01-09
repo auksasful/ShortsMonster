@@ -145,11 +145,12 @@ def run_footage_downloader(project_folder):
     downloader.execute()
 
 def run_voice_generator(project_folder):
+    available_voices = ['Aria', 'Roger', 'Sarah', 'Laura', 'Charlie', 'George', 'Callum', 'River', 'Liam', 'Charlotte', 'Alice', 'Matilda', 'Will', 'Jessica', 'Eric', 'Chris', 'Brian', 'Daniel', 'Lily', 'Bill']
     voice = VoiceGenerator(project_folder, Config.NAGA_AC_API_KEY)
     json_data = voice.read_json_data()
     for video in json_data:
         for scene in video['scenes']:
-            voice.execute(video_id=video['video'], scene=scene['scene'], prompt=scene['text'])
+            voice.execute(video_id=video['video'], scene=scene['scene'], prompt=scene['text'], voice=available_voices[6])
 
 def run_video_generator(project_folder):
     video = VideoGenerator(project_folder)

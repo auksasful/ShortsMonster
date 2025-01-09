@@ -2,13 +2,14 @@ import sqlite3
 import requests
 
 class NagaACUtils():
-    def __init__(self, api_key, db_name="naga_ac.db", text_model_whitelist=["default-gemini-1.5-pro", "default-gpt-3.5-turbo"], image_model_whitelist = ["sdxl", "kandinsky-3.1"], api_url="https://api.naga.ac/v1"):
+    def __init__(self, api_key, db_name="naga_ac.db", text_model_whitelist=["default-gemini-1.5-pro", "default-gpt-3.5-turbo"], image_model_whitelist = ["sdxl", "kandinsky-3.1"], voice_model_whitelist = ['default-eleven-monolingual-v1', 'default-eleven-turbo-v2', 'default-eleven-multilingual-v1', 'default-eleven-multilingual-v2'], api_url="https://api.naga.ac/v1"):
         self.api_key = api_key
         self.db_name = db_name
         self.api_url = api_url
         self.init_create_db()
         self.text_model_whitelist = text_model_whitelist
         self.image_model_whitelist = image_model_whitelist
+        self.voice_model_whitelist = voice_model_whitelist
         self.update_db_limits()
 
 
@@ -69,7 +70,7 @@ class NagaACUtils():
 
         # Insert or update data
         for item in data["data"]:
-            if item['id'] in self.text_model_whitelist or item['id'] in self.image_model_whitelist:
+            if item['id'] in self.text_model_whitelist or item['id'] in self.image_model_whitelist or item['id'] in self.voice_model_whitelist:
                 # First, try to update the existing record
                 cursor.execute('''
                     UPDATE naga_ac_limits
@@ -88,7 +89,7 @@ class NagaACUtils():
         conn.commit()
         conn.close()
 
-    def update_api_usage(self, current_model_id, exceeded=False):
+    def update_api_usage(self, current_model_id, exceeded=False, voice_model=False):
         # Connect to SQLite database (or create it if it doesn't exist)
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
@@ -101,6 +102,38 @@ class NagaACUtils():
             creationdate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
         ''')
+
+        if voice_model:
+            # get the amount of entries for the current model during the last minute
+            cursor.execute('''
+                SELECT COUNT(*) FROM api_usage
+                WHERE model_id = ?;
+            ''', (str(current_model_id),))
+            count = cursor.fetchone()[0]
+            if count >= 2:
+                exceeded = True
+
+            #create adjusted voice_model_whitelist: each value should not have 'default-' prefix
+            voice_model_whitelist_new = [model.replace('default-', '') for model in self.voice_model_whitelist]
+            
+            # check if all the models from voice_model_whitelist have exceeded the limits
+            exceeded_models_count = 0
+            for model_id in voice_model_whitelist_new:
+                cursor.execute('''
+                    SELECT COUNT(*) FROM api_usage
+                    WHERE model_id = ?;
+                ''', (model_id,))
+                count = cursor.fetchone()[0]
+                if count >= 2:
+                    exceeded_models_count += 1
+            
+            # if all exceeded, delete all entries in the whitelist
+            if len(voice_model_whitelist_new) == exceeded_models_count:
+                for model_id in voice_model_whitelist_new:
+                    cursor.execute('''
+                        DELETE FROM api_usage
+                        WHERE model_id = ?;
+                    ''', (model_id,))
 
         # Insert new entry with current_model_id
         cursor.execute('''
@@ -118,7 +151,7 @@ class NagaACUtils():
         conn.commit()
         conn.close()
 
-    def get_best_model(self, image_model=False):
+    def get_best_model(self, image_model=False, voice_model=False):
         # Connect to SQLite database (or create it if it doesn't exist)
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
@@ -145,6 +178,8 @@ class NagaACUtils():
             model_id, perminute, perday = model
             if image_model:
                 model_whitelist = self.image_model_whitelist
+            elif voice_model:
+                model_whitelist = self.voice_model_whitelist
             else:
                 model_whitelist = self.text_model_whitelist
             if model_id in model_whitelist:

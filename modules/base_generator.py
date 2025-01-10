@@ -16,6 +16,8 @@ class BaseGenerator:
 
         self.generated_images = os.path.join(self.project_folder, 'generated_images')
         self.generated_video = os.path.join(self.project_folder, 'generated_video')
+        self.downloaded_images = os.path.join(self.project_folder, 'downloaded_images')
+        self.downloaded_videos = os.path.join(self.project_folder, 'downloaded_videos')
         self.script_file_path = os.path.join(self.project_folder, self.SCRIPT_FILE_NAME)
         self.script_videos_file_path = os.path.join(self.project_folder, self.SCRIPT_VIDEOS_FILE_NAME)
         self.image_prompts_file_path = os.path.join(self.project_folder, self.IMAGE_PROMPTS_FILE_NAME)
@@ -24,6 +26,9 @@ class BaseGenerator:
         # Automatically create project folder and its subdirectories if they do not exist
         os.makedirs(self.generated_images, exist_ok=True)
         os.makedirs(self.generated_video, exist_ok=True)
+        os.makedirs(self.downloaded_images, exist_ok=True)
+        os.makedirs(self.downloaded_videos, exist_ok=True)
+        
 
     def read_csv(self, file_path):
         # Logic for reading a CSV file

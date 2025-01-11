@@ -12,6 +12,8 @@ class FootageDownloader(BaseGenerator):
         self.images_folder = self.downloaded_images
         self.videos_folder = self.downloaded_videos
 
+    def read_json_data(self):
+        return self.read_json(self.script_videos_file_path)
 
     def execute(self, query, mode='video', pages=1, per_page=10, orientation=None,
                             photo_quality=None, video_quality=None):

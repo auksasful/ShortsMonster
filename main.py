@@ -139,20 +139,31 @@ def run_image_generator(project_folder):
     json_data = generator.read_image_prompts_json()
     for video in json_data:
         for scene in video['scenes']:
-            generator.execute(video_id=video['video'], scene=scene['scene'], prompt=scene['image_prompt'])
+            if scene == video['scenes'][0] or scene == video['scenes'][-1]:
+                generation_chance = 1
+            else:
+                generation_chance = 0.3
+            generator.execute(video_id=video['video'], scene=scene['scene'], prompt=scene['image_prompt'], generation_chance=generation_chance)
             
     generator.write_json_data()
 
 def run_footage_downloader(project_folder, mode='video', orietation='portrait'):
     downloader = FootageDownloader(project_folder, Config.PEXELS_API_KEY)
     writer = Writer(Config.NAGA_AC_API_KEY, text_model_whitelist=ai_text_models)
-    json_data = downloader.read_json_data()
+    json_data = downloader.read_script_videos_json()
+    image_paths_json = downloader.read_image_paths_json()
     for video in json_data:
         for scene in video['scenes']:
-            if random.random() <= 0.7 and scene != video['scenes'][0] and scene != video['scenes'][-1]:
+            image_paths = image_paths_json[video['video'] - 1]["scenes"]
+            for path in image_paths:
+                if scene['scene'] == path['scene']:
+                    image_path = path['image_path']
+                    break
+            if not image_path:
                 prompt = f"For scene {scene['text']} write a keyword that i could use to search for a video footage for. Do not explain what you are doing, just write the keyword."
                 keyword = writer.generate_text_nagaac(prompt=prompt)
-                downloader.execute(query=keyword, pages=1, per_page=1, mode=mode, orientation=orietation)
+                file_path = downloader.execute(query=keyword, pages=1, per_page=1, mode=mode, orientation=orietation)
+                downloader.update_image_path(video_id=video['video'], scene=scene['scene'], image_path=file_path)
 
 def run_voice_generator(project_folder):
     available_voices = ['Aria', 'Roger', 'Sarah', 'Laura', 'Charlie', 'George', 'Callum', 'River', 'Liam', 'Charlotte', 'Alice', 'Matilda', 'Will', 'Jessica', 'Eric', 'Chris', 'Brian', 'Daniel', 'Lily', 'Bill']

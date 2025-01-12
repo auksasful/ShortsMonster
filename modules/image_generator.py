@@ -1,5 +1,6 @@
 from collections import defaultdict
 from datetime import datetime
+import random
 import time
 import os
 import re
@@ -24,11 +25,14 @@ class ImageGenerator(BaseGenerator):
         json_data = [{"video": video_id, **video_data} for video_id, video_data in self.videos.items()]
         self.write_json(self.image_paths_file_path, json_data)
 
-    def execute(self, video_id, scene, prompt):
+    def execute(self, video_id, scene, prompt, generation_chance=0.3):
         save_path = os.path.join(self.generated_images, str(video_id), self.remove_symbols(scene))
         os.makedirs(save_path, exist_ok=True)
-        image_path = self.generate_images_pollynation_ai(prompt=prompt, save_path=save_path)
-        self.trim_and_resize_image(image_path, self.width, self.height)
+        if random.random() <= generation_chance:
+            image_path = self.generate_images_pollynation_ai(prompt=prompt, save_path=save_path)
+            self.trim_and_resize_image(image_path, self.width, self.height)
+        else:
+            image_path = ""
 
         scene_data = { 
             "scene": scene, 

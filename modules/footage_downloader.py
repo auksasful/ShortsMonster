@@ -12,8 +12,22 @@ class FootageDownloader(BaseGenerator):
         self.images_folder = self.downloaded_images
         self.videos_folder = self.downloaded_videos
 
-    def read_json_data(self):
+    def read_script_videos_json(self):
         return self.read_json(self.script_videos_file_path)
+    
+    def read_image_paths_json(self):
+        return self.read_json(self.image_paths_file_path)
+    
+    def update_image_path(self, video_id, scene, image_path):
+        data = self.read_image_paths_json()
+        for video in data:
+            if video["video"] == video_id:
+                for scene_data in video["scenes"]:
+                    if scene_data["scene"] == scene:
+                        scene_data["image_path"] = image_path
+                        break
+                break
+        self.write_json(self.image_paths_file_path, data)
 
     def execute(self, query, mode='video', pages=1, per_page=10, orientation=None,
                             photo_quality=None, video_quality=None):
@@ -35,7 +49,7 @@ class FootageDownloader(BaseGenerator):
                     else:
                         download_url = self._choose_video_quality(item, video_quality)
                     if download_url:
-                        self._download_file(download_url, folder_path)
+                        return self._download_file(download_url, folder_path)
 
     @staticmethod
     def _choose_image_quality(item, quality):
@@ -95,3 +109,5 @@ class FootageDownloader(BaseGenerator):
             print(f'File downloaded and saved: {file_path}')
         except requests.exceptions.RequestException as e:
             print(f'Error downloading file: {e}')
+
+        return file_path

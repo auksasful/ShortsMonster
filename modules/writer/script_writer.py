@@ -5,7 +5,6 @@ from openai import OpenAI
 import os
 import re
 import sqlite3
-from openai import OpenAI
 import requests
 
 

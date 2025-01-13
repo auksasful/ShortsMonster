@@ -158,12 +158,26 @@ def run_footage_downloader(project_folder, mode='video', orietation='portrait'):
             for path in image_paths:
                 if scene['scene'] == path['scene']:
                     image_path = path['image_path']
+                    google_image_path = path['google_image_path']
                     break
+
+            prompt = f"For scene {scene['text']} write a keyword that i could use to search for a video footage for. Do not explain what you are doing, just write the keyword."
+            
+            if image_path and google_image_path:
+                continue
+
+            keyword = writer.generate_text_nagaac(prompt=prompt)
+
+            if not google_image_path:
+                image_file_path = downloader.execute(query=keyword, pages=1, per_page=1, mode='photo', orientation=orietation)
+            else:
+                image_file_path = google_image_path
+            
             if not image_path:
-                prompt = f"For scene {scene['text']} write a keyword that i could use to search for a video footage for. Do not explain what you are doing, just write the keyword."
-                keyword = writer.generate_text_nagaac(prompt=prompt)
                 file_path = downloader.execute(query=keyword, pages=1, per_page=1, mode=mode, orientation=orietation)
-                downloader.update_image_path(video_id=video['video'], scene=scene['scene'], image_path=file_path)
+            else:
+                file_path = image_path
+            downloader.update_image_path(video_id=video['video'], scene=scene['scene'], image_path=file_path, google_image_path=image_file_path)
 
 def run_voice_generator(project_folder):
     available_voices = ['Aria', 'Roger', 'Sarah', 'Laura', 'Charlie', 'George', 'Callum', 'River', 'Liam', 'Charlotte', 'Alice', 'Matilda', 'Will', 'Jessica', 'Eric', 'Chris', 'Brian', 'Daniel', 'Lily', 'Bill']

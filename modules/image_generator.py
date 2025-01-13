@@ -36,7 +36,8 @@ class ImageGenerator(BaseGenerator):
 
         scene_data = { 
             "scene": scene, 
-            "image_path": image_path
+            "image_path": image_path,
+            "google_image_path": ""
         } 
         if "scenes" not in self.videos[video_id]:
             self.videos[video_id]["scenes"] = []

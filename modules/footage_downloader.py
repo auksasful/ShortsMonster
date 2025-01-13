@@ -18,19 +18,22 @@ class FootageDownloader(BaseGenerator):
     def read_image_paths_json(self):
         return self.read_json(self.image_paths_file_path)
     
-    def update_image_path(self, video_id, scene, image_path):
+    def update_image_path(self, video_id, scene, image_path, google_image_path):
         data = self.read_image_paths_json()
         for video in data:
             if video["video"] == video_id:
                 for scene_data in video["scenes"]:
                     if scene_data["scene"] == scene:
                         scene_data["image_path"] = image_path
+                        scene_data["google_image_path"] = google_image_path
                         break
                 break
         self.write_json(self.image_paths_file_path, data)
 
     def execute(self, query, mode='video', pages=1, per_page=10, orientation=None,
                             photo_quality=None, video_quality=None):
+        pexels_file_path = ''
+        google_file_path = ''
         for page in range(1, pages + 1):
             if mode == 'photo':
                 results = self.search_photos(query, page, per_page, orientation)

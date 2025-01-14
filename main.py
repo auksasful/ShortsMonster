@@ -188,8 +188,11 @@ def run_voice_generator(project_folder):
             voice.execute(video_id=video['video'], scene=scene['scene'], prompt=scene['text'], voice=available_voices[6])
 
 def run_video_generator(project_folder):
-    video = VideoGenerator(project_folder)
-    video.execute()
+    video_gen = VideoGenerator(project_folder)
+    media_paths_json = video_gen.read_media_paths_json()
+    script_videos_json = video_gen.read_script_videos_json()
+    for video in script_videos_json:
+        video_gen.execute(video_dict=video, media_paths_dict=media_paths_json[video['video'] - 1]["scenes"])
 
 def run_full_pipeline(project_folder, prompt_for_images):
     run_script_writer(project_folder)

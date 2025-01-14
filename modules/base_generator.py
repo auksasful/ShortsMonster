@@ -53,4 +53,8 @@ class BaseGenerator:
     def read_json(self, file_path):
         with open(file_path, 'r', encoding='utf-8') as file:
             return json.load(file)
+        
+    def remove_symbols(self, text): 
+        # Replace non-space symbols with an empty string 
+        return re.sub(r'[^\w\s]', '', text)
     

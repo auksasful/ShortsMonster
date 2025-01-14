@@ -125,12 +125,6 @@ class ImageGenerator(BaseGenerator):
         # Save the image, replacing the original
         image.save(image_path)
         print(f"Image saved to {image_path}")
-
-
-    @staticmethod
-    def remove_symbols(text): 
-        # Replace non-space symbols with an empty string 
-        return re.sub(r'[^\w\s]', '', text)
     
 
     def initialize_videos(self):

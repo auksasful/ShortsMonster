@@ -22,12 +22,14 @@ class BaseGenerator:
         self.script_videos_file_path = os.path.join(self.project_folder, self.SCRIPT_VIDEOS_FILE_NAME)
         self.image_prompts_file_path = os.path.join(self.project_folder, self.IMAGE_PROMPTS_FILE_NAME)
         self.image_paths_file_path = os.path.join(self.project_folder, self.IMAGE_PATHS_FILE_NAME)
+        self.fonts_folder = 'fonts'
 
         # Automatically create project folder and its subdirectories if they do not exist
         os.makedirs(self.generated_images, exist_ok=True)
         os.makedirs(self.generated_video, exist_ok=True)
         os.makedirs(self.downloaded_images, exist_ok=True)
         os.makedirs(self.downloaded_videos, exist_ok=True)
+        os.makedirs(self.fonts_folder, exist_ok=True)
         
 
     def read_csv(self, file_path):

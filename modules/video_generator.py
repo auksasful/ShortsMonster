@@ -1,12 +1,14 @@
 import os
 from modules.base_generator import BaseGenerator
-from moviepy.editor import AudioFileClip
-from moviepy.editor import ImageClip, VideoFileClip, concatenate_videoclips, vfx, CompositeVideoClip
 import numpy as np
 import random
 from PIL import Image
-from moviepy.editor import VideoClip
-
+import textwrap
+from moviepy.editor import (
+    AudioFileClip, ImageClip, VideoFileClip, 
+    concatenate_videoclips, vfx, CompositeVideoClip,
+    VideoClip, TextClip
+)
 
 class VideoGenerator(BaseGenerator):
     def __init__(self, project_folder):
@@ -63,8 +65,11 @@ class VideoGenerator(BaseGenerator):
                 # Add the audio to the video clip
                 if audio_duration > 0:
                     audio_clip = AudioFileClip(voiceover_path)
-                    video_clip = video_clip.set_audio(audio_clip)
+                    video_clip.audio = audio_clip
                 
+                # Add text overlay
+                video_clip = self.add_text_overlay(video_clip, scene['text'])
+
                 # Save the video clip
                 video_clip.write_videofile(video_path, codec="libx264", fps=24)
                 video_clip.close()
@@ -231,3 +236,28 @@ class VideoGenerator(BaseGenerator):
             return np.array(frame)
 
         return VideoClip(make_frame, duration=duration)
+    
+    def add_text_overlay(self, base_clip, text):
+        wrapped = textwrap.wrap(text.upper(), width=40)
+        # Each slice of 2 lines forms a separate overlay
+        lines = []
+        while wrapped:
+            lines.append('\n'.join(wrapped[:2]))
+            wrapped = wrapped[2:]
+        # For simplicity, return one combined overlay with the first chunk
+        # (extend logic if you want multiple overlays for longer texts)
+        font_path = os.path.join(self.fonts_folder, 'ARIALBD.TTF')
+        if lines:
+            txt_clip = TextClip(
+                txt=lines[0],
+                # size=48,
+                font=font_path,
+                color='white',
+                method='caption',
+                align='center',
+                size=(int(base_clip.w * 0.8), int(base_clip.h * 0.2)),
+                ).set_duration(base_clip.duration).set_position(('center', 0.8), relative=True)
+            return CompositeVideoClip([base_clip, txt_clip]) #.set_duration(base_clip.duration)
+        return base_clip
+    
+        #TODO: use text formatting and timestamps from this example: https://github.com/aengus126/Caption-Generator-MoviePy/tree/main/release%201

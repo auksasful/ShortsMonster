@@ -1,4 +1,5 @@
 import os
+from config import Config
 from modules.base_generator import BaseGenerator
 import numpy as np
 import random
@@ -9,6 +10,8 @@ from moviepy.editor import (
     concatenate_videoclips, vfx, CompositeVideoClip,
     VideoClip, TextClip
 )
+import google.generativeai as genai
+genai.configure(api_key=Config.GEMINI_API_KEY)
 
 class VideoGenerator(BaseGenerator):
     def __init__(self, project_folder):
@@ -89,8 +92,37 @@ class VideoGenerator(BaseGenerator):
         print(final_video_path)
         os.makedirs(os.path.dirname(final_video_path), exist_ok=True)
         self.concatenate_video_clips(clip_paths, final_video_path)
+        
+        # Extract audio from final video
+        audio_clip = AudioFileClip(final_video_path)
+        mp3_path = os.path.join(os.path.dirname(final_video_path), "audio.mp3")
+        audio_clip.write_audiofile(mp3_path)
+        audio_clip.close()
+
+        # Get transcript
+        transcript = self.get_audio_transcript(mp3_path)
+
+        # Save transcript
+        transcript_path = os.path.join(os.path.dirname(final_video_path), "transcript.txt")
+        with open(transcript_path, 'w', encoding='utf-8') as f:
+            f.write(transcript)
         return final_video_path
-            
+
+
+    def get_audio_transcript(self, audio_path):
+        # Initialize a Gemini model appropriate for your use case.
+        model = genai.GenerativeModel(model_name="gemini-1.5-flash")
+
+        audio_file = genai.upload_file(audio_path)
+
+        # Create the prompt.
+        prompt = "Generate a transcript of the speech with timestamps."
+
+        # Pass the prompt and the audio file to Gemini.
+        response = model.generate_content([prompt, audio_file])
+
+        # return the transcript.
+        return response.text  
 
     def get_audio_duration(self, audio_path):
         # Get the duration of the audio file

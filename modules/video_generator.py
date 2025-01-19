@@ -292,4 +292,5 @@ class VideoGenerator(BaseGenerator):
             return CompositeVideoClip([base_clip, txt_clip]) #.set_duration(base_clip.duration)
         return base_clip
     
-        #TODO: use text formatting and timestamps from this example: https://github.com/aengus126/Caption-Generator-MoviePy/tree/main/release%201
+        #TODO: not great, but can be used as a starting point
+        # https://github.com/aengus126/Caption-Generator-MoviePy/tree/main/release%201

@@ -28,7 +28,7 @@ class VideoGenerator(BaseGenerator):
         clip_paths = []
         media_types = []
 
-        for scene in video_dict['scenes']:
+        for i, scene in enumerate(video_dict['scenes']):
             for path in media_paths_dict:
                 if scene['scene'] == path['scene']:
                     media_path = path['image_path']
@@ -71,7 +71,8 @@ class VideoGenerator(BaseGenerator):
                     video_clip.audio = audio_clip
                 
                 # Add text overlay
-                video_clip = self.add_text_overlay(video_clip, scene['text'])
+                overlay_color = "yellow" if i % 2 == 0 else "red"
+                video_clip = self.add_text_overlay(video_clip, scene['text'], color=overlay_color)
 
                 # Save the video clip
                 video_clip.write_videofile(video_path, codec="libx264", fps=24)
@@ -116,7 +117,48 @@ class VideoGenerator(BaseGenerator):
         audio_file = genai.upload_file(audio_path)
 
         # Create the prompt.
-        prompt = "Generate a transcript of the speech with timestamps."
+        prompt = """Generate a transcript of the speech with timestamps in seconds (numbers displayed). Each timestamped segment should contain no more than 2 words.
+        Example format:
+        00:00:00.000 --> 00:00:01.000 Hey everyone.
+
+00:00:01.000 --> 00:00:02.000 Welcome back.
+
+00:00:02.000 --> 00:00:03.000 Today, sharing.
+
+00:00:03.000 --> 00:00:04.000 Five snacks.
+
+00:00:04.000 --> 00:00:05.000 First up.
+
+00:00:05.000 --> 00:00:06.000 Fresh fruits.
+
+00:00:06.000 --> 00:00:07.000 Apples, bananas.
+
+00:00:07.000 --> 00:00:08.000 Rich fiber.
+
+00:00:08.000 --> 00:00:09.000 Next, nuts.
+
+00:00:09.000 --> 00:00:10.000 Almonds, seeds.
+
+00:00:10.000 --> 00:00:11.000 High protein.
+
+00:00:11.000 --> 00:00:12.000 Third, carrots.
+
+00:00:12.000 --> 00:00:13.000 With hummus.
+
+00:00:13.000 --> 00:00:14.000 Tasty combo.
+
+00:00:14.000 --> 00:00:15.000 Fourth, yogurt.
+
+00:00:15.000 --> 00:00:16.000 Weight loss.
+
+00:00:16.000 --> 00:00:17.000 Last, smoothie.
+
+00:00:17.000 --> 00:00:18.000 Spinach, banana.
+
+00:00:18.000 --> 00:00:19.000 Thanks, watching.
+
+00:00:19.000 --> 00:00:20.000 Subscribe now.
+        """
 
         # Pass the prompt and the audio file to Gemini.
         response = model.generate_content([prompt, audio_file])
@@ -269,7 +311,7 @@ class VideoGenerator(BaseGenerator):
 
         return VideoClip(make_frame, duration=duration)
     
-    def add_text_overlay(self, base_clip, text):
+    def add_text_overlay(self, base_clip, text, color='white'):
         wrapped = textwrap.wrap(text.upper(), width=40)
         # Each slice of 2 lines forms a separate overlay
         lines = []
@@ -284,9 +326,11 @@ class VideoGenerator(BaseGenerator):
                 txt=lines[0],
                 # size=48,
                 font=font_path,
-                color='white',
+                color=color,
                 method='caption',
                 align='center',
+                stroke_color='black',
+                stroke_width=1.5,
                 size=(int(base_clip.w * 0.8), int(base_clip.h * 0.2)),
                 ).set_duration(base_clip.duration).set_position(('center', 0.8), relative=True)
             return CompositeVideoClip([base_clip, txt_clip]) #.set_duration(base_clip.duration)

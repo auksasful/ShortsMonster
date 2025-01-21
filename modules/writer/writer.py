@@ -1,11 +1,15 @@
 from openai import OpenAI
 from modules.nagaac_utils import NagaACUtils
+from modules.script_entity import Scene
+import google.generativeai as genai
+import json
 
 
 class Writer:
-    def __init__(self, api_key, text_model_whitelist=["default-gemini-1.5-pro", "default-gpt-3.5-turbo"], api_url="https://api.naga.ac/v1"):
+    def __init__(self, api_key, gemini_api_key, text_model_whitelist=["default-gemini-1.5-pro", "default-gpt-3.5-turbo"], api_url="https://api.naga.ac/v1"):
         self.text_model_whitelist = text_model_whitelist
         self.api_url = api_url
+        self.gemini_api_key = gemini_api_key
 
         self.client = OpenAI(base_url=self.api_url,api_key=api_key)
 
@@ -35,4 +39,30 @@ class Writer:
                     current_model_id = self.nagaac_utils.get_best_model()
             rate_limit_cheked = not rate_limit_exceeded
         return response_msg
+    
+
+    
+    def structure_script_gemini(self, prompt):
+        genai.configure(api_key=self.gemini_api_key)
+        model = genai.GenerativeModel(model_name='gemini-1.5-flash') #, system_instruction=system_prompt)
+        response = model.generate_content(prompt)
+        # response = model.generate_content([prompt, self.RECIPES_FILE_PATH])
+        raw_data = response.text
+        prompt = f"""
+        Summarize the script based on the schema given.
+
+        {raw_data}"""
+        response = model.generate_content(prompt, generation_config={"response_mime_type": "application/json", "response_schema": Scene})
+        try:
+            # Attempt to parse the response text as JSON
+            data = json.loads(response.text)
+            # If successful, print the formatted JSON
+            # print(json.dumps(data, indent=4))
+        except json.JSONDecodeError as e:
+            # If parsing fails, print the error and the raw response text
+            print(f"Error decoding JSON: {e}")
+            print(f"Raw response text: {response.text}")
+        # self.write_json(response.text, self.DATA_LIST_FILE_PATH, page)
+        return response.text
+
     

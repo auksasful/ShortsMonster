@@ -11,23 +11,36 @@ import random
 from modules.writer.writer import Writer
 
 prompts = [
-    'Create a 30-second Tiktok video script about [5 easy healthy snacks for weight loss].\n'
-    'Required format: csv file delimited by |^| with 5 columns: Scene, Duration, Text, Visuals, Hashtags, Description.\n'
-    'Output the list of these columns.'
-    'The duration should be integer.'
-    'There MUST be lots of scenes that keep changing every 3 seconds.',
+   'Create a 30-second Tiktok video script about [5 easy healthy snacks for weight loss].\n'
+    'Required format: json with 2 columns: Text, Visuals.\n'
+    'Output the list of these columns.\n'
+    'DO NOT include any text that is not related to the topic.\n'
+    'DO NOT explain what you are doing, just write the script.\n'
+    'The duration of the scene must be 3 seconds, that means there MUST be lots of scenes that keep changing every 3 seconds.',
+
+
+    # 'The duration should be integer.'
+    # 'There MUST be lots of scenes that keep changing every 3 seconds.',
 
     'Create a 30-second Tiktok video script about [Top 3 fat-burning cardio exercises].\n'
-    'Required format: csv file delimited by |^| with 5 columns: Scene, Duration, Text, Visuals, Hashtags, Description.\n'
-    'Output the list of these columns.'
-    'The duration should be integer.'
-    'There MUST be lots of scenes that keep changing every 3 seconds.',
+    'Required format: json with 2 columns: Text, Visuals.\n'
+    'Output the list of these columns.\n'
+    'DO NOT include any text that is not related to the topic.\n'
+    'DO NOT explain what you are doing, just write the script.\n'
+    'The duration of the scene must be 3 seconds, that means there MUST be lots of scenes that keep changing every 3 seconds.',
+
+    # 'The duration should be integer.'
+    # 'There MUST be lots of scenes that keep changing every 3 seconds.',
 
     'Create a 30-second Tiktok video script about [Drinking water before meals for weight loss].\n'
-    'Required format: csv file delimited by |^| with 5 columns: Scene, Duration, Text, Visuals, Hashtags, Description.\n'
-    'Output the list of these columns.'
-    'The duration should be integer.'
-    'There MUST be lots of scenes that keep changing every 3 seconds.', 
+    'Required format: json with 2 columns: Text, Visuals.\n'
+    'Output the list of these columns.\n'
+    'DO NOT include any text that is not related to the topic.\n'
+    'DO NOT explain what you are doing, just write the script.\n'
+    'The duration of the scene must be 3 seconds, that means there MUST be lots of scenes that keep changing every 3 seconds.',
+
+    # 'The duration should be integer.'
+    # 'There MUST be lots of scenes that keep changing every 3 seconds.', 
 ]
 
 # TODO: use gemini api structured response instead of stupid text dividing methods
@@ -127,7 +140,6 @@ def run_script_divider(project_folder):
     for row in rows:
         for row_inner in row:
             divider.execute(line=row_inner)
-    divider.write_json_data()
 
 def run_prompts_writer(project_folder, prompt_for_images):
     prompts = PromptsWriter(project_folder, Config.NAGA_AC_API_KEY, Config.GEMINI_API_KEY, ai_text_models)

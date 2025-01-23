@@ -17,34 +17,49 @@ class ScriptDivider(BaseGenerator):
         data = self.read_csv(self.script_file_path)
         return data
     
-    def write_json_data(self):
-        json_data = [{"video": video_id, **video_data} for video_id, video_data in self.videos.items()]
-        self.write_json(self.script_videos_file_path, json_data)
-
     def execute(self, line):
-        # print(f"row: {line}")
-        if line == self.header:
-            self.header_met = True
-            self.current_video_id += 1
-            self.videos[self.current_video_id] = {"scenes": []}
-            return
-        
-        if self.header_met and (line.count('|^|') == 5):
-            row_scene = line.split('|^|')
-            # add dictionary to new_scene_array
-            duration_value = row_scene[1].strip()
-            duration_value = int(re.search(r'\d+', duration_value).group())
-            scene_data = { 
-                "scene": row_scene[0].strip().strip('"'), 
-                "duration": duration_value, 
-                "text": row_scene[2].strip().strip('"'),
-                "visuals": row_scene[3].strip().strip('"'),
-                "hashtags": row_scene[4].strip().strip('"'),
-                "description": row_scene[5].strip().strip('"')
-            } 
-            self.videos[self.current_video_id]["scenes"].append(scene_data)
-        else:
-            self.header_met = False
+        script_file_path = self.script_file_path
+
+
+        with open(script_file_path, "r", encoding="utf-8") as f:
+            old_json_strings = f.readlines()
+            new_json_data = self.transform_data(old_json_strings)
+
+        self.write_json(self.script_videos_file_path, new_json_data)
+
+    @staticmethod
+    def transform_data(old_json_strings):
+        """
+        Accepts a list of JSON strings in the old format
+        and returns a list of dictionaries in the new format.
+        """
+        result = []
+        for index, json_str in enumerate(old_json_strings, start=1):
+            json_str = json_str.strip()
+            if json_str.startswith('"') and json_str.endswith('"'):
+                json_str = json_str[1:-1].replace('""', '"')
+            old_data = json.loads(json_str)
+    
+            scene_objects = old_data.get("Scenes", [])
+            
+            scenes_list = []
+            for i, s_obj in enumerate(scene_objects, start=1):
+                scenes_list.append({
+                    "scene": str(i),
+                    "duration": 3,
+                    "text": s_obj.get("What_Speaker_Says_In_First_Person", ""),
+                    "visuals": s_obj.get("Visuals", ""),
+                    "hashtags": old_data.get("Hashtags", ""),
+                    "description": old_data.get("Description", "")
+                })
+
+            result.append({
+                "video": index,
+                "scenes": scenes_list
+            })
+
+        return result
+
 
     def initialize_videos(self, json_file_path, append):
         videos = defaultdict(lambda: {"scenes": []}) 

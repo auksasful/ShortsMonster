@@ -4,12 +4,11 @@ from typing_extensions import TypedDict
 
 
 class Scene(TypedDict):
-    Scene: str
-    Duration: int
-    Text: str
+    # Duration: int
+    What_Speaker_Says_In_First_Person: str
     Visuals: str
-    Hashtags: str
-    Description: str
+    # Hashtags: str
+    # Description: str
 
 class Videos(TypedDict):
     Video: int

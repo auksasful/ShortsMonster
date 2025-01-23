@@ -1,6 +1,6 @@
 from openai import OpenAI
 from modules.nagaac_utils import NagaACUtils
-from modules.script_entity import Scene
+from modules.script_entity import Scene, Videos
 import google.generativeai as genai
 import json
 
@@ -45,17 +45,15 @@ class Writer:
     def structure_script_gemini(self, prompt):
         genai.configure(api_key=self.gemini_api_key)
         model = genai.GenerativeModel(model_name='gemini-1.5-flash') #, system_instruction=system_prompt)
-        response = model.generate_content(prompt)
-        # response = model.generate_content([prompt, self.RECIPES_FILE_PATH])
-        raw_data = response.text
         prompt = f"""
-        Summarize the script based on the schema given.
+        Get text from the script based on the schema given. 
 
-        {raw_data}"""
-        response = model.generate_content(prompt, generation_config={"response_mime_type": "application/json", "response_schema": Scene})
+        {prompt}"""
+        response = model.generate_content(prompt, generation_config={"response_mime_type": "application/json", "response_schema": Videos})
+       
         try:
             # Attempt to parse the response text as JSON
-            data = json.loads(response.text)
+            json.loads(response.text)
             # If successful, print the formatted JSON
             # print(json.dumps(data, indent=4))
         except json.JSONDecodeError as e:

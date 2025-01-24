@@ -141,10 +141,10 @@ class NagaACUtils():
             VALUES (?, ?);
         ''', (str(current_model_id), int(exceeded)))
 
-        # Delete entries older than 1 hour
+        # Delete entries older than 1 minute
         cursor.execute('''
             DELETE FROM api_usage
-            WHERE creationdate <= datetime('now','-1 hour');
+            WHERE creationdate <= datetime('now','-1 minute');
         ''')
 
         # Commit changes and close the connection

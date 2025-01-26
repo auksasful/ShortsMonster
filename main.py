@@ -11,33 +11,33 @@ import random
 from modules.writer.writer import Writer
 
 prompts = [
-   'Create a 30-second Tiktok video script about [5 easy healthy snacks for weight loss].\n'
+   'Create a 30-second Tiktok video script about [10 tips for learning spanish].\n'
     'Required format: json with 2 columns: Text, Visuals.\n'
     'Output the list of these columns.\n'
     'DO NOT include any text that is not related to the topic.\n'
     'DO NOT explain what you are doing, just write the script.\n'
-    'The duration of the scene must be 3 seconds, that means there MUST be lots of scenes that keep changing every 3 seconds.',
+    'The duration of the scene must be 5 seconds, that means there MUST be lots of scenes that keep changing every 3 seconds.',
 
 
     # 'The duration should be integer.'
     # 'There MUST be lots of scenes that keep changing every 3 seconds.',
 
-    'Create a 30-second Tiktok video script about [Top 3 fat-burning cardio exercises].\n'
-    'Required format: json with 2 columns: Text, Visuals.\n'
-    'Output the list of these columns.\n'
-    'DO NOT include any text that is not related to the topic.\n'
-    'DO NOT explain what you are doing, just write the script.\n'
-    'The duration of the scene must be 3 seconds, that means there MUST be lots of scenes that keep changing every 3 seconds.',
+    # 'Create a 30-second Tiktok video script about [How to act in a foreign country].\n'
+    # 'Required format: json with 2 columns: Text, Visuals.\n'
+    # 'Output the list of these columns.\n'
+    # 'DO NOT include any text that is not related to the topic.\n'
+    # 'DO NOT explain what you are doing, just write the script.\n'
+    # 'The duration of the scene must be 5 seconds, that means there MUST be lots of scenes that keep changing every 3 seconds.',
 
     # 'The duration should be integer.'
     # 'There MUST be lots of scenes that keep changing every 3 seconds.',
 
-    'Create a 30-second Tiktok video script about [Drinking water before meals for weight loss].\n'
-    'Required format: json with 2 columns: Text, Visuals.\n'
-    'Output the list of these columns.\n'
-    'DO NOT include any text that is not related to the topic.\n'
-    'DO NOT explain what you are doing, just write the script.\n'
-    'The duration of the scene must be 3 seconds, that means there MUST be lots of scenes that keep changing every 3 seconds.',
+    # 'Create a 30-second Tiktok video script about [3 tips for first time travellers].\n'
+    # 'Required format: json with 2 columns: Text, Visuals.\n'
+    # 'Output the list of these columns.\n'
+    # 'DO NOT include any text that is not related to the topic.\n'
+    # 'DO NOT explain what you are doing, just write the script.\n'
+    # 'The duration of the scene must be 5 seconds, that means there MUST be lots of scenes that keep changing every 3 seconds.',
 
     # 'The duration should be integer.'
     # 'There MUST be lots of scenes that keep changing every 3 seconds.', 
@@ -202,7 +202,7 @@ def run_voice_generator(project_folder):
     json_data = voice.read_json_data()
     for video in json_data:
         for scene in video['scenes']:
-            voice.execute(video_id=video['video'], scene=scene['scene'], prompt=scene['text'], voice=available_voices[6])
+            voice.execute(video_id=video['video'], scene=scene['scene'], prompt=scene['text'], voice=available_voices[7])
 
 def run_video_generator(project_folder):
     video_gen = VideoGenerator(project_folder)
@@ -221,8 +221,8 @@ def run_full_pipeline(project_folder, prompt_for_images):
     run_video_generator(project_folder)
 
 def main():
-    project_folder = 'Running'
-    prompt_for_images='For scene [scene] write an image prompt. The goal is to generate very abstract visuals for this scene using this prompt that do not display any people or text. Do not explain what you are doing, just write the prompt.'
+    project_folder = 'Travel'
+    prompt_for_images='For scene [scene] write an image prompt. The goal is to generate accurate, ultra realistic image for this scene using this prompt that do not display any people or text. Do not explain what you are doing, just write the prompt.'
 
     print(
         "Select a mode of operation:\n"

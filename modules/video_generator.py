@@ -10,6 +10,8 @@ from moviepy.editor import (
     concatenate_videoclips, vfx, CompositeVideoClip,
     VideoClip, TextClip
 )
+import whisper_timestamped as whisper
+import os
 import google.generativeai as genai
 genai.configure(api_key=Config.GEMINI_API_KEY)
 
@@ -31,7 +33,10 @@ class VideoGenerator(BaseGenerator):
         for i, scene in enumerate(video_dict['scenes']):
             for path in media_paths_dict:
                 if scene['scene'] == path['scene']:
-                    media_path = path['image_path']
+                    if (path['image_path'] == "" or path['image_path'] == None):
+                        media_path = path['google_image_path']
+                    else:
+                        media_path = path['image_path']
             
             scene_id = scene['scene']
             print(media_path, scene['text'], scene_id)
@@ -71,8 +76,16 @@ class VideoGenerator(BaseGenerator):
                     video_clip.audio = audio_clip
                 
                 # Add text overlay
-                overlay_color = "yellow" if i % 2 == 0 else "red"
-                video_clip = self.add_text_overlay(video_clip, scene['text'], color=overlay_color)
+                # Get transcribed text with timestamps
+                ffmpeg_path = "C:\\ffmpeg\\ffmpeg-7.1-essentials_build\\bin\\ffmpeg.exe"  # Adjust this path if needed
+                ffprobe_path = "C:\\ffmpeg\\ffmpeg-7.1-essentials_build\\bin\\ffprobe.exe"  # Adjust this path if needed
+                os.environ["FFMPEG_BINARY"] = ffmpeg_path
+                os.environ["FFPROBE_BINARY"] = ffprobe_path
+                transcribed_text = self.get_transcribed_text(voiceover_path)
+                # Create text clips for each word
+                text_clips = self.get_text_clips(transcribed_text, fontsize=90)
+                # Create composite video with original clip and text overlays
+                video_clip = CompositeVideoClip([video_clip] + text_clips)
 
                 # Save the video clip
                 video_clip.write_videofile(video_path, codec="libx264", fps=24)
@@ -108,6 +121,33 @@ class VideoGenerator(BaseGenerator):
         with open(transcript_path, 'w', encoding='utf-8') as f:
             f.write(transcript)
         return final_video_path
+    
+    def get_transcribed_text(self, filename):
+        if not os.path.exists(filename):
+            raise FileNotFoundError(f"The file {filename} does not exist.")
+        audio = whisper.load_audio(filename)
+        model = whisper.load_model("small", device="cpu")
+        results = whisper.transcribe(model, audio, language="en")
+
+        return results["segments"]
+
+    def get_text_clips(self, text, fontsize):
+        text_clips = []
+        for segment in text:
+            for word in segment["words"]:
+                text_clips.append(
+                    TextClip(word["text"],
+                        fontsize=fontsize,
+                        method='caption',
+                        stroke_width=5, 
+                        stroke_color="white", 
+                        font="Arial-Bold",
+                        color="white")
+                    .set_start(word["start"])
+                    .set_end(word["end"])   
+                    .set_position("center")
+                )
+        return text_clips
 
 
     def get_audio_transcript(self, audio_path):
@@ -330,7 +370,7 @@ class VideoGenerator(BaseGenerator):
                 method='caption',
                 align='center',
                 stroke_color='black',
-                stroke_width=1.5,
+                stroke_width=3,
                 size=(int(base_clip.w * 0.8), int(base_clip.h * 0.2)),
                 ).set_duration(base_clip.duration).set_position(('center', 0.8), relative=True)
             return CompositeVideoClip([base_clip, txt_clip]) #.set_duration(base_clip.duration)

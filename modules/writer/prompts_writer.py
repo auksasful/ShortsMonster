@@ -7,10 +7,11 @@ import json
 
 
 class PromptsWriter(BaseGenerator):
-    def __init__(self, project_folder, api_key, gemini_api_key, text_model_whitelist=["default-gemini-1.5-pro", "default-gpt-3.5-turbo"], api_url="https://api.naga.ac/v1"):
+    def __init__(self, project_folder, api_key, gemini_api_key, groq_api_key, use_groq=True, text_model_whitelist=["default-gemini-1.5-pro", "default-gpt-3.5-turbo"], api_url="https://api.naga.ac/v1"):
         super().__init__(project_folder)
-        self.writer = Writer(api_key=api_key, gemini_api_key=gemini_api_key, text_model_whitelist=text_model_whitelist, api_url=api_url)
+        self.writer = Writer(api_key=api_key, gemini_api_key=gemini_api_key, groq_api_key=groq_api_key, text_model_whitelist=text_model_whitelist, api_url=api_url)
         self.videos = self.initialize_videos()
+        self.use_groq = use_groq
 
 
     def read_json_data(self):
@@ -22,7 +23,10 @@ class PromptsWriter(BaseGenerator):
 
 
     def execute(self, prompt, video_id, scene):
-        response = self.writer.generate_text_nagaac(prompt)
+        if self.use_groq:
+            response = self.writer.generate_text_groq(prompt)
+        else:
+            response = self.writer.generate_text_nagaac(prompt)
         file_path = self.image_prompts_file_path
 
         scene_data = { 

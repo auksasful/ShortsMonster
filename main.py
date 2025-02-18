@@ -129,7 +129,7 @@ ai_text_models = [
 
 
 def run_script_writer(project_folder):
-    writer = ScriptWriter(project_folder, Config.NAGA_AC_API_KEY, Config.GEMINI_API_KEY, text_model_whitelist=ai_text_models)
+    writer = ScriptWriter(project_folder, Config.NAGA_AC_API_KEY, Config.GEMINI_API_KEY, Config.GROQ_API_KEY, text_model_whitelist=ai_text_models)
 
     for prompt in prompts:
         writer.execute(prompt)
@@ -142,7 +142,7 @@ def run_script_divider(project_folder):
             divider.execute(line=row_inner)
 
 def run_prompts_writer(project_folder, prompt_for_images):
-    prompts = PromptsWriter(project_folder, Config.NAGA_AC_API_KEY, Config.GEMINI_API_KEY, ai_text_models)
+    prompts = PromptsWriter(project_folder, Config.NAGA_AC_API_KEY, Config.GEMINI_API_KEY, Config.GROQ_API_KEY, ai_text_models)
     json_data = prompts.read_json_data()
     for video in json_data:
         for scene in video['scenes']:
@@ -166,7 +166,7 @@ def run_image_generator(project_folder):
 
 def run_footage_downloader(project_folder, mode='video', orietation='portrait'):
     downloader = FootageDownloader(project_folder, Config.PEXELS_API_KEY)
-    writer = Writer(Config.NAGA_AC_API_KEY, Config.GEMINI_API_KEY, text_model_whitelist=ai_text_models)
+    writer = Writer(Config.NAGA_AC_API_KEY, Config.GEMINI_API_KEY, Config.GROQ_API_KEY, text_model_whitelist=ai_text_models)
     json_data = downloader.read_script_videos_json()
     image_paths_json = downloader.read_image_paths_json()
     for video in json_data:

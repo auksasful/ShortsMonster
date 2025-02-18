@@ -55,18 +55,19 @@ class VideoGenerator(BaseGenerator):
 
                 # Create a video clip with the image/video and audio
                 if media_path.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
-                    effects = [
-                        self.zoom_in_effect,
-                        self.zoom_out_effect, #only these effects work properly
-                        # self.slide_left_to_right,
-                        # self.slide_right_to_left,
-                        # self.slide_top,
-                        # self.slide_bottom,
-                        # self.circular_motion
-                    ]
+                    # effects = [
+                    #     self.zoom_in_effect,
+                    #     self.zoom_out_effect, #only these effects work properly
+                    #     # self.slide_left_to_right,
+                    #     # self.slide_right_to_left,
+                    #     # self.slide_top,
+                    #     # self.slide_bottom,
+                    #     # self.circular_motion
+                    # ]
+                    effects = [self.zoom_in_effect, self.zoom_out_effect]
                     chosen_effect = random.choice(effects)
                     image = Image.open(media_path)
-                    image = self.scale_and_crop(image)
+                    image = self.scale_and_crop(image, target_size=(1080, 1920))  # Apply target size
                     video_clip = chosen_effect(image, duration=audio_duration)
                 else:
                     video_clip = self.create_video_clip(media_path, audio_duration)
@@ -83,7 +84,7 @@ class VideoGenerator(BaseGenerator):
                 os.environ["FFPROBE_BINARY"] = ffprobe_path
                 transcribed_text = self.get_transcribed_text(voiceover_path)
                 # Create text clips for each word
-                text_clips = self.get_text_clips(transcribed_text, fontsize=90)
+                text_clips = self.get_text_clips(transcribed_text, fontsize=100)
                 # Create composite video with original clip and text overlays
                 video_clip = CompositeVideoClip([video_clip] + text_clips)
 
@@ -140,9 +141,9 @@ class VideoGenerator(BaseGenerator):
                         fontsize=fontsize,
                         method='caption',
                         stroke_width=5, 
-                        stroke_color="white", 
+                        stroke_color="black", 
                         font="Arial-Bold",
-                        color="white")
+                        color="yellow")
                     .set_start(word["start"])
                     .set_end(word["end"])   
                     .set_position("center")
@@ -217,10 +218,12 @@ class VideoGenerator(BaseGenerator):
         # Create a video clip with the image/video and audio
         if media_path.lower().endswith(('.mp4', '.mov', '.avi')):
             video_clip = VideoFileClip(media_path).subclip(0, audio_duration)
+            video_clip = video_clip.resize(newsize=(1080, 1920))  # Resize to target resolution
             video_clip = video_clip.set_duration(audio_duration)
             return video_clip
         else:
             image_clip = ImageClip(media_path, duration=audio_duration)
+            image_clip = image_clip.resize(newsize=(1080, 1920))  # Resize to target resolution
             image_clip = image_clip.set_duration(audio_duration)
             return image_clip
         
@@ -247,14 +250,16 @@ class VideoGenerator(BaseGenerator):
         return final_video_path
     
 
-    def scale_and_crop(self, image, scale_factor=1.2):
-        w, h = image.size
-        nw, nh = int(w * scale_factor), int(h * scale_factor)
-        scaled_img = image.resize((nw, nh), Image.LANCZOS)
-        left = (nw - w) // 2
-        top = (nh - h) // 2
-        # Keep a larger area to prevent black edges with sliding and circular effects
-        cropped_img = scaled_img.crop((left, top, left + w, top + h))
+    def scale_and_crop(self, image, target_size=(1080, 1920), scale_factor=1.2):
+        target_w, target_h = target_size
+        # Scale the image to cover the target size with some zoom
+        scaled_w = int(target_w * scale_factor)
+        scaled_h = int(target_h * scale_factor)
+        scaled_img = image.resize((scaled_w, scaled_h), Image.LANCZOS)
+        # Crop to the target dimensions
+        left = (scaled_w - target_w) // 2
+        top = (scaled_h - target_h) // 2
+        cropped_img = scaled_img.crop((left, top, left + target_w, top + target_h))
         return cropped_img
 
     def zoom_in_effect(self, image, duration, zoom_factor=1.2):

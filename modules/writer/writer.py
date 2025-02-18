@@ -1,4 +1,6 @@
+from groq import Groq
 from openai import OpenAI
+from modules.groq_utils import GroqUtils
 from modules.nagaac_utils import NagaACUtils
 from modules.script_entity import Scene, Videos
 import google.generativeai as genai
@@ -6,14 +8,17 @@ import json
 
 
 class Writer:
-    def __init__(self, api_key, gemini_api_key, text_model_whitelist=["default-gemini-1.5-pro", "default-gpt-3.5-turbo"], api_url="https://api.naga.ac/v1"):
+    def __init__(self, api_key, gemini_api_key, groq_api_key, text_model_whitelist=["default-gemini-1.5-pro", "default-gpt-3.5-turbo"], api_url="https://api.naga.ac/v1"):
         self.text_model_whitelist = text_model_whitelist
         self.api_url = api_url
         self.gemini_api_key = gemini_api_key
+        self.groq_api_key = groq_api_key
 
         self.client = OpenAI(base_url=self.api_url,api_key=api_key)
 
         self.nagaac_utils = NagaACUtils(api_key,text_model_whitelist=self.text_model_whitelist)
+
+        self.groq_utils = GroqUtils(api_key=groq_api_key)
 
 
     def generate_text_nagaac(self, prompt, system_prompt=''):
@@ -40,6 +45,43 @@ class Writer:
             rate_limit_cheked = not rate_limit_exceeded
         return response_msg
     
+    def generate_text_groq(self, prompt, system_prompt=''):
+        client = Groq(api_key=self.groq_api_key)
+        current_model_id = self.groq_utils.get_best_model()
+        print(current_model_id)
+        rate_limit_cheked = False
+        rate_limit_exceeded = False
+        response_msg = ''
+        while not rate_limit_cheked:
+            try:
+                response = client.chat.completions.create(
+                    model=current_model_id,
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": system_prompt,
+                        },
+                        {
+                            "role": "user",
+                            "content": prompt,
+                        }
+                    ],
+                    temperature=0.6,
+                    max_completion_tokens=8000,
+                    top_p=0.95,
+                    stream=False,
+                    stop=None,
+                )
+                response_msg = response.choices[0].message.content
+                rate_limit_exceeded = False
+            except Exception as e:
+                print(e)
+                if 'rate_limit_exceeded' or 'Invalid model' or 'no_sources_available' or 'Input should be' in str(e):
+                    rate_limit_exceeded = True
+                    self.groq_utils.update_current_model_id()
+                    current_model_id = self.groq_utils.get_best_model()
+            rate_limit_cheked = not rate_limit_exceeded
+        return response_msg
 
     
     def structure_script_gemini(self, prompt):

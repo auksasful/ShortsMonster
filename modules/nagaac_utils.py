@@ -10,7 +10,8 @@ class NagaACUtils():
         self.text_model_whitelist = text_model_whitelist
         self.image_model_whitelist = image_model_whitelist
         self.voice_model_whitelist = voice_model_whitelist
-        self.update_db_limits()
+        self.current_model_id = 0
+        # self.update_db_limits()
 
 
     def init_create_db(self):
@@ -152,6 +153,22 @@ class NagaACUtils():
         conn.close()
 
     def get_best_model(self, image_model=False, voice_model=False):
+        if image_model:
+            model_whitelist = self.image_model_whitelist
+        elif voice_model:
+            model_whitelist = self.voice_model_whitelist
+        else:
+            model_whitelist = self.text_model_whitelist
+
+        self.current_model_id += 1
+        if self.current_model_id >= len(model_whitelist):
+            self.current_model_id = 0
+
+        model_whitelist_new = [model.replace('default-', '') for model in model_whitelist]
+        
+        return model_whitelist_new[self.current_model_id]
+
+
         # Connect to SQLite database (or create it if it doesn't exist)
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()

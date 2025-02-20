@@ -8,7 +8,7 @@ import json
 
 
 class Writer:
-    def __init__(self, api_key, gemini_api_key, groq_api_key, text_model_whitelist=["default-gemini-1.5-pro", "default-gpt-3.5-turbo"], api_url="https://api.naga.ac/v1"):
+    def __init__(self, api_key, gemini_api_key, groq_api_key, use_groq=True, text_model_whitelist=["default-gemini-1.5-pro", "default-gpt-3.5-turbo"], api_url="https://api.naga.ac/v1"):
         self.text_model_whitelist = text_model_whitelist
         self.api_url = api_url
         self.gemini_api_key = gemini_api_key
@@ -16,7 +16,8 @@ class Writer:
 
         self.client = OpenAI(base_url=self.api_url,api_key=api_key)
 
-        self.nagaac_utils = NagaACUtils(api_key,text_model_whitelist=self.text_model_whitelist)
+        if not use_groq:
+            self.nagaac_utils = NagaACUtils(api_key,text_model_whitelist=self.text_model_whitelist)
 
         self.groq_utils = GroqUtils(api_key=groq_api_key)
 

@@ -7,16 +7,20 @@ from modules.voice_generator import VoiceGenerator
 from modules.video_generator import VideoGenerator
 from config import Config
 import random
+from moviepy.editor import TextClip
 
 from modules.writer.writer import Writer
 
+cta_prompt = 'In the very end, create a scene that encourages the viewer to click the link in the account bio.'
+
 prompts = [
-   'Create a 30-second Tiktok video script about [10 tips for learning spanish].\n'
+   'Create a 30-second Tiktok video script about [why leggings are best for women].\n'
     'Required format: json with 2 columns: Text, Visuals.\n'
     'Output the list of these columns.\n'
     'DO NOT include any text that is not related to the topic.\n'
     'DO NOT explain what you are doing, just write the script.\n'
-    'The duration of the scene must be 5 seconds, that means there MUST be lots of scenes that keep changing every 3 seconds.',
+    'The duration of the scene must be at least 5 seconds, that means each scene is informational enough.\n'
+    '' + cta_prompt,
 
 
     # 'The duration should be integer.'
@@ -183,7 +187,7 @@ def run_footage_downloader(project_folder, mode='video', orietation='portrait'):
             if image_path and google_image_path:
                 continue
 
-            keyword = writer.generate_text_nagaac(prompt=prompt)
+            keyword = writer.generate_text_groq(prompt=prompt)
 
             if not google_image_path:
                 image_file_path = downloader.execute(query=keyword, pages=1, per_page=1, mode='photo', orientation=orietation)
@@ -259,4 +263,5 @@ def main():
 
 
 if __name__ == "__main__":
+    print(TextClip.list('font'))
     main()

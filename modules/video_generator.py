@@ -84,7 +84,7 @@ class VideoGenerator(BaseGenerator):
                 os.environ["FFPROBE_BINARY"] = ffprobe_path
                 transcribed_text = self.get_transcribed_text(voiceover_path)
                 # Create text clips for each word
-                text_clips = self.get_text_clips(transcribed_text, fontsize=100)
+                text_clips = self.get_text_clips(transcribed_text, fontsize=120)
                 # Create composite video with original clip and text overlays
                 video_clip = CompositeVideoClip([video_clip] + text_clips)
 
@@ -140,10 +140,10 @@ class VideoGenerator(BaseGenerator):
                     TextClip(word["text"],
                         fontsize=fontsize,
                         method='caption',
-                        stroke_width=5, 
+                        stroke_width=4, 
                         stroke_color="black", 
-                        font="Arial-Bold",
-                        color="yellow")
+                        font="Candara-Bold",
+                        color="white")
                     .set_start(word["start"])
                     .set_end(word["end"])   
                     .set_position("center")
